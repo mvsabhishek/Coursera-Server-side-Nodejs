@@ -1,9 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
 const promoRouter = express.Router();
 const Promotions = require('../models/Promotions');
-
+const authenticate = require('../authenticate');
 // Configure body-parser to be able read incoming json data
 promoRouter.use(bodyParser.json());
 
@@ -18,7 +17,7 @@ promoRouter.route('/')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post((req, res) => {
+    .post(authenticate.verifyuser, (req, res) => {
         Promotions.create(req.body)
             .then((promotion) => {
                 console.log('Promotion Created', promotion);
@@ -28,11 +27,11 @@ promoRouter.route('/')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .put((req, res) => {
+    .put(authenticate.verifyuser, (req, res) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /Promotions');
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyuser, (req, res, next) => {
         Promotions.remove({})
             .then((resp) => {
                 res.statusCode = 200;
@@ -59,11 +58,11 @@ promoRouter.route('/:promoId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post((req, res) => {
+    .post(authenticate.verifyuser, (req, res) => {
         res.statusCode = 403;
         res.end('Post operation is not supported on /promotions' + req.url);
     })
-    .put((req, res) => {
+    .put(authenticate.verifyuser, (req, res) => {
         Promotions.findByIdAndUpdate(req.params.promoId, {
                 $set: req.body
             }, { new: true })
@@ -74,7 +73,7 @@ promoRouter.route('/:promoId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .delete((req, res) => {
+    .delete(authenticate.verifyuser, (req, res) => {
         Promotions.findByIdAndRemove(req.params.promoId)
             .then((resp) => {
                 res.statusCode = 200;
